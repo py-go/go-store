@@ -13,13 +13,8 @@ import (
 
 var db *gorm.DB
 
-//db := database.GetDB().Create(&user)
 func Init() *gorm.DB {
 
-	// username := os.Getenv("DB_USER")
-	// password := os.Getenv("DB_PASSWORD")
-	// dbName := os.Getenv("DB_NAME")
-	// host := os.Getenv("DB_HOST")
 	dbInstance, err := gorm.Open("sqlite3", path.Join(".", "app.db"))
 	if err != nil {
 		log.Fatalf("failed to open DB connection: %v", err)
@@ -61,11 +56,15 @@ func SetConnection(dbInstance *gorm.DB) {
 }
 
 func AutoMigrate() {
+	// db.DropTableIfExists(
+	// 	&m.Order{},
+	// 	&m.Partner{},
+	// 	&m.OrderItem{})
 	db.AutoMigrate(&m.User{})
 	db.AutoMigrate(&m.Partner{})
 	db.AutoMigrate(&m.Product{})
-	db.AutoMigrate(&m.Order{})
-	db.AutoMigrate(&m.OrderItem{})
+	db.AutoMigrate(&m.Order{}, &m.OrderItem{})
+	db.AutoMigrate(&m.Discount{}, &m.ProductCartRule{})
 
 }
 

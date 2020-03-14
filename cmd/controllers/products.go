@@ -6,9 +6,22 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-store/cmd/dtos"
+	"go-store/cmd/models"
 	svc "go-store/cmd/services"
 	"net/http"
 )
+
+func ListProductCartRules(c *gin.Context) {
+	user := c.MustGet("storeUser").(models.User)
+	obj, err := svc.FetchProductCartRule(user)
+	// obj, err := svc.FetchProductCartRulebyProductIDs([]uint{3, 4, 5})
+
+	if err != nil {
+		dtos.RenderOrmError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, obj)
+}
 
 func ListProduct(c *gin.Context) {
 	obj, err := svc.FetchProducts()

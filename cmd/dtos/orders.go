@@ -13,7 +13,11 @@ type SaleOrder struct {
 	ZipCode        string `form:"zip_code" json:"zip_code" xml:"zip_code" `
 	AddressId      uint   `form:_id" json:"address_id" xml:"address_id" `
 	TrackingNumber string `form:"tracking_number" json:"tracking_number" xml:"tracking_number" `
-	OrderItems     []struct {
+	// AmountTotal float64 `form:"amount_total" json:"amount_total" xml:"amount_total" `
+	// Discount    float64 `form:"discount" json:"discount" xml:"discount" `
+	// Amount      float64 `form:"amount" json:"amount" xml:"amount" `
+
+	OrderItems []struct {
 		Id       uint `form:"id" json:"id" binding:"required"`
 		Quantity int  `form:"quantity" json:"quantity" binding:"required"`
 	} `form:"items" json:"items" xml:"items"  binding:"required"`
@@ -25,18 +29,17 @@ func CreateSaleOrder(order *models.Order, includes ...bool) map[string]interface
 		"id":              order.ID,
 		"tracking_number": order.TrackingNumber(),
 		"state":           order.Status(),
-	}
-	response["user"] = map[string]interface{}{
-		"id":       order.UserId,
-		"username": order.User.Username,
+		"amount_total":    order.AmountTotal,
+		"amount":          order.Amount,
 	}
 	orderItems := make([]map[string]interface{}, len(order.OrderItems))
 	for i := 0; i < len(order.OrderItems); i++ {
-		oi := order.OrderItems[i]
+		item := order.OrderItems[i]
 		orderItems[i] = map[string]interface{}{
-			"name":  oi.ProductName,
-			"slug":  oi.Slug,
-			"price": oi.Price,
+			"name":  item.ProductName,
+			"slug":  item.Slug,
+			"price": item.Price,
+			"qty":   item.Quantity,
 		}
 	}
 	response["items"] = orderItems
@@ -44,10 +47,5 @@ func CreateSaleOrder(order *models.Order, includes ...bool) map[string]interface
 }
 
 func OrderData(order *models.Order) map[string]interface{} {
-
-	return Success(CreateSaleOrder(order, true, true, false))
+	return CreateSaleOrder(order, true, true, false)
 }
-
-// func CreateSaleOrderCreatedDto(order *models.Order) map[string]interface{} {
-// 	return Success(CreateSaleOrderDetails(order))
-// }

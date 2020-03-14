@@ -19,9 +19,9 @@ type Partner struct {
 	FirstName string `gorm:"not null"`
 	LastName  string `gorm:"not null"`
 
-	User   User    `gorm:"association_foreignkey:UserId:"`
+	User   User
 	UserId uint    `gorm:"default:null"` // Guest Users may place an order, so they should be able to create an Partner with nullable UserId
-	Orders []Order `gorm:"foreignKey:PartnerId"`
+	Orders []Order `gorm:"foreignKey:PartnerID"`
 }
 
 type User struct {

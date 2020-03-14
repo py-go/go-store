@@ -9,13 +9,13 @@ import (
 type Order struct {
 	gorm.Model
 	OrderStatus int         `gorm:"default:0"`
-	OrderItems  []OrderItem `gorm:"foreignKey:OrderId"`
+	OrderItems  []OrderItem `gorm:"foreignKey:OrderID"`
 
-	Partner   Partner `gorm:"association_foreignkey:PartnerId:"`
-	PartnerId uint
+	Partner   Partner
+	PartnerID uint
 
-	User   User `gorm:"foreignKey:UserId"`
-	UserId uint `gorm:"default:null"`
+	User   User `gorm:"foreignKey:UserID"`
+	UserID uint `gorm:"default:null"`
 
 	AmountTotal float64
 	Discount    float64
@@ -40,16 +40,16 @@ func (order *Order) TrackingNumber() string {
 type OrderItem struct {
 	gorm.Model
 	Order   Order
-	OrderId uint `gorm:"not null"`
+	OrderID uint
 
 	Product   Product
-	ProductId uint `gorm:"not null"`
+	ProductID uint
 
-	Slug        string `gorm:"not null"`
-	ProductName string `gorm:"not null"`
-	Price       int    `gorm:"not null"`
-	Quantity    int    `gorm:"not null"`
+	Slug        string  `gorm:"not null"`
+	ProductName string  `gorm:"not null"`
+	Price       float64 `gorm:"not null"`
+	Quantity    int     `gorm:"not null"`
 
-	User   User `gorm:"association_foreignkey:UserId:"`
-	UserId uint `gorm:"default:null"`
+	User   User
+	UserID uint `gorm:"default:null"`
 }

@@ -8,18 +8,12 @@ import (
 // TrackingNumber
 func FetchOrdersByUser(user m.User) (orders []m.Order, err error) {
 	database := db.Connection()
-	err = database.Model(m.Order{User: user}).Preload("OrderItems").Find(&orders).Error
-	// var partner m.Partner
-	// database.Model(&orders).Related(&partner)
-	// order.Partner = partner
+	err = database.Preload("OrderItems").Find(&orders, m.Order{UserID: user.ID}).Error
 	return
 }
 
 func FetchOrderDetails(orderID uint) (order m.Order, err error) {
 	database := db.Connection()
-	err = database.Model(m.Order{}).Preload("OrderItems").First(&order, orderID).Error
-	var partner m.Partner
-	database.Model(&order).Related(&partner)
-	order.Partner = partner
+	err = database.Preload("OrderItems").First(&order, orderID).Error
 	return order, err
 }

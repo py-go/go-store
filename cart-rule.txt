@@ -1,5 +1,34 @@
 #############################
 
+//err = database.Model(&m.Order{}).Related(user).Error
+//[2020-03-15 01:57:55]  [0.15ms]  SELECT * FROM "users"  WHERE "users"."deleted_at" IS NULL AND
+//"users"."id" = 1 AND (("id" = 0))
+
+var card CreditCard
+db.Model(&user).Related(&card, "CreditCard")
+//// SELECT * FROM credit_cards WHERE user_id = 123; // 123 is user's primary key
+// CreditCard is user's field name, it means get user's CreditCard relations and fill it into variable card
+// If the field name is same as the variable's type name, like above example, it could be omitted, like:
+db.Model(&user).Related(&card)
+
+
+##############################3
+
+https://jinzhu.me/gorm/associations.html#many-to-many
+
+DB.Preload("Friends").First(&user, "id = ?", 1)
+
+DB.Model(&user).Association("Friends").Append(&User{Name: "friend1"}, &User{Name: "friend2"})
+
+DB.Model(&user).Association("Friends").Delete(&User{Name: "friend2"})
+
+DB.Model(&user).Association("Friends").Replace(&User{Name: "new friend"})
+
+DB.Model(&user).Association("Friends").Clear()
+
+DB.Model(&user).Association("Friends").Count()
+
+###############################
 DiscountTable(D1):
 
 d_type: direct

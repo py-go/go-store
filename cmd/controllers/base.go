@@ -20,17 +20,21 @@ func Init(router *gin.RouterGroup) {
 	}
 
 	products := router.Group("/products")
-	products.Use(middlewares.EnforceAuthenticatedMiddleware())
 	{
 		products.GET("", ListProduct)
 		products.GET("/:id", GetProduct)
+
+	}
+	rules := router.Group("/rules")
+	{
+		rules.GET("", ListProductCartRules)
 	}
 
 	orders := router.Group("/orders")
+	orders.POST("", CreateOrder)
 	orders.Use(middlewares.EnforceAuthenticatedMiddleware())
 	{
 		orders.GET("", ListOrders)
-		orders.POST("", CreateOrder)
 		orders.GET("/:id", GetOrder)
 
 	}
