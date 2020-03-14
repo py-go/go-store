@@ -17,6 +17,8 @@ integration_test_image:
 local: # Run go application locally
 	PORT=3000 PROBE_PORT=8085 go run ${ENTRY_POINT}
 
+loaddata:
+	PORT=3000 PROBE_PORT=8085 go run ${ENTRY_POINT} "loaddata"
 run: image # Run docker container in foreground
 	docker run -p 3000:3000 -p 8085:8085 go-store
 

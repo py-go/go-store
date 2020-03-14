@@ -1,41 +1,57 @@
 package main
 
 import (
-	"go-store/cmd/handlers/auth"
-	"go-store/cmd/handlers/product"
-	"go-store/cmd/handlers/up"
-	"go-store/cmd/middleware"
-	"go-store/cmd/router"
+	"go-store/cmd/controllers"
+	"go-store/cmd/database"
+	"go-store/cmd/middlewares"
 	"go-store/cmd/utils"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/cors"
+
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+
+	database.Init()
+
+}
+func cli() {
+	if args := os.Args; len(args) > 1 {
+		arg := args[1]
+		if arg == "loaddata" {
+			utils.CreateProducts(database.Connection())
+		}
+		os.Exit(0)
+	}
+}
 func main() {
+
+	cli()
 	// Start the Healthz service
 	go healthz()
 
-	router := router.SetupRouter()
-	router.Use(middleware.SetUserStatus())
+	router := gin.Default()
 	router.NoRoute(handle404)
-	router.LoadHTMLGlob("templates/*")
-	product.AddProduct(router)
-	up.AddUpV1(router)
-	auth.AddAuth(router)
+	router.Use(cors.Default())
+	router.Use(middlewares.SessionMiddleware())
+
+	api := router.Group("/v1/")
+	controllers.Init(api)
 
 	log.Printf("Starting go-store API")
-
 	port := GetServicePort("PORT", ":8080")
+
 	log.Printf("Serving at %s", port)
 	router.Run(port)
 
 }
 
 func handle404(c *gin.Context) {
-	utils.RenderError(c, http.StatusNotFound, "error.html", gin.H{
+	c.JSON(http.StatusNotFound, gin.H{
 		"message": "Page not found",
 		"title":   "Error",
 		"code":    "PAGE_NOT_FOUND",

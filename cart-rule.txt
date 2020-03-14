@@ -1,0 +1,140 @@
+#############################
+
+DiscountTable(D1):
+
+d_type: direct
+percerange: 30
+
+ProductCartRule(R1):
+
+Product: oranges
+qty: null
+discount: D1
+#############################
+DiscountTable(D2):
+d_type: single
+percerange: 10
+
+ProductCartRule(R2)
+Product: apples
+qty: 7
+discount: D2
+#############################
+DiscountTable(D3):
+d_type: multi
+percerange: 10
+
+
+ProductCartRule(R3)
+Product: pears
+qty: 4
+DiscountTable(D3):
+
+ProductCartRule(R4)
+Product: bananas
+qty: 2
+Discount Table(D3):
+
+########################
+qty = {
+	'pears': 5,
+	'bananas':10
+}
+
+d = 0
+for product in qty.items():
+##pears
+
+	p = ProductCartRule.filter(p = product)
+	if p.d_type==direct:
+		d = p.DT.percerange
+	elif p.d_type==single and p.qty>=qty['p']:
+		d = p.DT.percerange
+	elif p.d_type==multi:
+		x, y = p.DT.pids
+		xqty = qty[x]/x.qty # pears	: xqty=1
+		yqty = qty[y]/y.qty # bananas: yqty=5
+		d = p.DT.percerange*min(xqty,yqty):1 #min(1,5)=1
+
+
+qty = {
+	'pears': {qty: 10, price:100}
+	'bananas':{qty: 10, price:500}
+}
+
+tot_saving = 0
+tot = 0
+
+http://gorm.io/docs/has_many.html
+
+for product in qty.items():
+##pears
+db.Model(&productcartrule).Association("Languages").Find(&languages)
+
+	p = ProductCartRule.filter(p = product)
+	if p.d_type==direct:
+		d = p.DT.percerange
+		tot_price = qty[p]['qty']*p.qty
+
+		tot_saving += tot_price*d/100
+		tot_price += tot_price-tot_price*d/100
+
+	elif p.d_type==single and p.qty>=qty['p']:
+		d = p.DT.percerange
+		tot_price = qty[p]['qty']*p.qty
+
+		tot_saving += tot_price*d/100
+		tot_price += tot_price-tot_price*d/100
+
+	elif p.d_type==multi:
+		x, y = p.DT.pids
+		xqty = qty[x]['qty']/x.qty # pears	: xqty=2
+		yqty = qty[y]['qty']/y.qty # bananas: yqty=5
+		d = p.DT.percerange*min(xqty,yqty):1 #min(2,5)=2
+
+		tot_price = (qty[y]['qty']*y.qty + qtx[x]['qty']*x.qty)
+		tot_saving += tot_price*d/100
+		tot_price += tot_price-tot_price*d/100
+
+
+#################3
+
+
+########################
+qty = {
+	'pears': 5,
+	'bananas':10
+}
+
+d = 0
+for d in DTs:
+##pears
+
+	if DT.d_type==direct:
+		p = d.ProductCartRules.p[0]
+		tot = qty[p]['qty']*p.qty
+		tot_saving += tot*d.percerange/100
+		tot_price += tot-tot*d.percerange/100
+
+	p = ProductCartRule.filter(p = product)
+
+		tot_saving += tot_price*d.percerange/100
+		tot_price += tot_price-tot_price*d.percerange/100
+
+	elif p.d_type==single and p.qty>=qty['p']:
+		d = p.DT.percerange
+		tot_price = qty[p]['qty']*p.qty
+
+		tot_saving += tot_price*d/100
+		tot_price += tot_price-tot_price*d/100
+
+	elif p.d_type==multi:
+		x, y = p.DT.pids
+		xqty = qty[x]['qty']/x.qty # pears	: xqty=2
+		yqty = qty[y]['qty']/y.qty # bananas: yqty=5
+		d = p.DT.percerange*min(xqty,yqty):1 #min(2,5)=2
+
+		tot_price = (qty[y]['qty']*y.qty + qtx[x]['qty']*x.qty)
+		tot_saving += tot_price*d/100
+		tot_price += tot_price-tot_price*d/100
+
