@@ -13,11 +13,7 @@ type SaleOrder struct {
 	ZipCode        string `form:"zip_code" json:"zip_code" xml:"zip_code" `
 	AddressId      uint   `form:_id" json:"address_id" xml:"address_id" `
 	TrackingNumber string `form:"tracking_number" json:"tracking_number" xml:"tracking_number" `
-	// AmountTotal float64 `form:"amount_total" json:"amount_total" xml:"amount_total" `
-	// Discount    float64 `form:"discount" json:"discount" xml:"discount" `
-	// Amount      float64 `form:"amount" json:"amount" xml:"amount" `
-
-	OrderItems []struct {
+	OrderItems     []struct {
 		Id       uint `form:"id" json:"id" binding:"required"`
 		Quantity int  `form:"quantity" json:"quantity" binding:"required"`
 	} `form:"items" json:"items" xml:"items"  binding:"required"`
@@ -30,7 +26,8 @@ func CreateSaleOrder(order *models.Order, includes ...bool) map[string]interface
 		"tracking_number": order.TrackingNumber(),
 		"state":           order.Status(),
 		"amount_total":    order.AmountTotal,
-		"amount":          order.Amount,
+		"discount":        order.Discount,
+		"amount":          order.Amount(),
 	}
 	orderItems := make([]map[string]interface{}, len(order.OrderItems))
 	for i := 0; i < len(order.OrderItems); i++ {

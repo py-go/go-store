@@ -19,9 +19,11 @@ type Order struct {
 
 	AmountTotal float64
 	Discount    float64
-	Amount      float64
 }
 
+func (order *Order) Amount() float64 {
+	return order.AmountTotal - order.Discount
+}
 func (order *Order) Status() string {
 	switch order.OrderStatus {
 	case 0:

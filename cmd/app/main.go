@@ -3,8 +3,8 @@ package main
 import (
 	"go-store/cmd/controllers"
 	"go-store/cmd/database"
+	"go-store/cmd/demo"
 	"go-store/cmd/middlewares"
-	"go-store/cmd/utils"
 	"log"
 	"net/http"
 	"os"
@@ -23,7 +23,7 @@ func cli() {
 	if args := os.Args; len(args) > 1 {
 		arg := args[1]
 		if arg == "loaddata" {
-			utils.CreateProducts(database.Connection())
+			demo.CreateDemoData(database.Connection())
 		}
 		os.Exit(0)
 	}
@@ -31,7 +31,6 @@ func cli() {
 func main() {
 
 	cli()
-	// Start the Healthz service
 	go healthz()
 
 	router := gin.Default()

@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +12,6 @@ import (
 	svc "go-store/cmd/services"
 	"net/http"
 )
-
-//https://github.com/cooldryplace/cart/blob/master/cart.go
 
 func ListOrders(c *gin.Context) {
 	user := c.MustGet("storeUser").(models.User)
@@ -102,10 +99,13 @@ func AddToCart(order *models.Order, json dtos.SaleOrder, newCart bool) (err erro
 	if newCart {
 		order.OrderItems = make([]models.OrderItem, productCount)
 	}
+
 	AmountTotal := 0.0
+	var itemPrice = make(map[uint]float64)
 	for index, product := range products {
 		qty := itemQty[product.ID]
 		price := product.Price * float64(qty)
+		itemPrice[product.ID] = product.Price
 		order.OrderItems[index] = models.OrderItem{
 			ProductID:   product.ID,
 			ProductName: product.Name,
@@ -116,29 +116,53 @@ func AddToCart(order *models.Order, json dtos.SaleOrder, newCart bool) (err erro
 		AmountTotal += price
 		log.Println(price, AmountTotal, "SSSSSSSSSSSs")
 	}
+
 	order.AmountTotal = (AmountTotal)
+	cartDiscount, err := computeCartRuleDiscount(order, itemQty, itemPrice)
+	if err != nil {
+		status = http.StatusNotFound
+		return
+	}
+	order.Discount = cartDiscount
+	// ADD Coupon Discount logic
 
-	rules, err := svc.FetchProductCartRulebyProductIDs(productIds)
-	log.Println(rules, "EEEEEEEEEEEEEEEE", len(rules))
-	// for index, rule := range rules {
-	// 	percerange := rule.Discount.Percerange
-	// 	quantity := rule.Quantity
+	return
+}
 
-	// 	qty := itemQty[rule.ProductID]
-	// 	price := rule.Product.Price * float64(qty)
+func computeCartRuleDiscount(order *models.Order, itemQty map[uint]int, itemPrice map[uint]float64) (result float64, err error) {
+	discounts, err := svc.FetchProductCartRule(order.User)
+	if err != nil {
+		log.Println("ERROR:orders.computeDiscount:", err)
+	}
+	for _, discount := range discounts {
+		percerange := discount.Percerange
+		combination := discount.Type
+		if combination != len(discount.Rules) {
+			continue
+		}
+		productsFactor := make(map[uint]int)
+		minFactor := 0
+		for index, rule := range discount.Rules {
+			dQty := itemQty[rule.ProductID] / rule.Quantity
+			if dQty == 0 {
+				productsFactor = make(map[uint]int)
+				break
+			}
+			if index == 0 {
+				minFactor = dQty
+			}
+			if minFactor > dQty {
+				minFactor = dQty
+			}
+			productsFactor[rule.ProductID] = dQty
+		}
+		for productID, factor := range productsFactor {
+			price := itemPrice[productID]
+			discount := (price * percerange / float64(100))
+			result += discount
+			log.Println(percerange, productID, price, factor, minFactor, discount, "============2222222222222222")
+		}
 
-	// 	// tot_price = qty[p]['qty']*p.qty
-	// 	// tot_saving += tot_price*d/100
-	// 	// tot_price += tot_price-tot_price*d/100
-
-	// }
-
-	os.Exit(0)
-
-	// for productId, qty := range itemQty {
-
-	// }
-	//Discount := computeDiscount(Discount, Amount)
-
+	}
 	return
 }

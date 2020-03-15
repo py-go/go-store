@@ -9,7 +9,7 @@ type Product struct {
 	gorm.Model
 	Name        string  `gorm:"size:280;not null"`
 	Description string  `gorm:"not null"`
-	Slug        string  `gorm:"unique_index;not null"`
+	Slug        string  `gorm:"not null"`
 	Price       float64 `gorm:"not null"`
 }
 

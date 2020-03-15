@@ -14,7 +14,7 @@ import (
 func ListProductCartRules(c *gin.Context) {
 	user := c.MustGet("storeUser").(models.User)
 	obj, err := svc.FetchProductCartRule(user)
-	// obj, err := svc.FetchProductCartRulebyProductIDs([]uint{3, 4, 5})
+	// obj, err := svc.FetchProductCartRuleV1([]uint{1, 5})
 
 	if err != nil {
 		dtos.RenderOrmError(c, err)
