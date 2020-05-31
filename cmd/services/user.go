@@ -5,17 +5,15 @@ import (
 	m "go-store/cmd/models"
 )
 
-func FindOneUser(condition interface{}) (m.User, error) {
+func FindOneUser(condition interface{}) (model m.User, err error) {
 	database := db.Connection()
-	var model m.User
-
-	err := database.Where(condition).First(&model).Error
-	return model, err
+	err = database.Where(condition).First(&model).Error
+	return
 }
 
-func UpdateUser(user m.User, data interface{}) error {
+func UpdateUser(user m.User, data interface{}) (err error) {
 	database := db.Connection()
-	err := database.Model(user).Update(data).Error
+	err = database.Model(user).Update(data).Error
 	return err
 }
 
