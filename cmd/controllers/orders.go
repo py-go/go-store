@@ -27,7 +27,8 @@ func ListOrders(c *gin.Context) {
 func GetOrder(c *gin.Context) {
 	objID, err := strconv.Atoi(c.Param("id"))
 	user := c.MustGet("storeUser").(models.User)
-	obj, err := svc.FetchOrderDetails(uint(objID))
+	// obj, err := svc.FetchOrderDetails(uint(objID))
+	obj, err := svc.FetchOrdersByUser([]uint{uint(2)})
 
 	if err != nil {
 		dtos.RenderOrmError(c, err)
@@ -74,14 +75,51 @@ func CreateOrder(c *gin.Context) {
 
 }
 
+func UpdateOrder(c *gin.Context) {
+	var json dtos.SaleOrder
+	// &models.Order{ID: uint(objID)}
+	obj, err := svc.FetchOrdersByUser([]uint{uint(2)})
+	if err != nil {
+		dtos.RenderOrmError(c, err)
+		return
+	}
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, dtos.ValidationErrorResponse(err))
+		return
+	}
+
+	order := models.Order{
+		OrderStatus: 0,
+	}
+	var user models.User
+	userObj, userLoggedIn := c.Get("storeUser")
+	if userLoggedIn {
+		user = (userObj).(models.User)
+		order.User = user
+	}
+
+	err, status := AddToCart(&order, json, true)
+	if err != nil {
+		c.AbortWithStatusJSON(status, dtos.ErrorResponse("message", err))
+		return
+	}
+
+	err = svc.CreateOne(&order)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dtos.ErrorResponse("message", err))
+		return
+	}
+	c.JSON(http.StatusOK, dtos.OrderData(&order))
+
+}
 func AddToCart(order *models.Order, json dtos.SaleOrder, newCart bool) (err error, status int) {
 
 	cartItemCount := len(json.OrderItems)
 
-	var productIds = make([]uint, cartItemCount)
+	var productIDs = make([]uint, cartItemCount)
 	var itemQty = make(map[uint]int)
 	for index, item := range json.OrderItems {
-		productIds[index] = item.Id
+		productIDs[index] = item.Id
 		if _, ok := itemQty[item.Id]; ok {
 			itemQty[item.Id] += item.Quantity
 		} else {
@@ -90,7 +128,7 @@ func AddToCart(order *models.Order, json dtos.SaleOrder, newCart bool) (err erro
 
 	}
 
-	products, err := svc.FechProductByIDs(productIds, []string{"id", "name", "slug", "price"})
+	products, err := svc.FechProductByIDs(productIDs, []string{"id", "name", "slug", "price"})
 	if err != nil {
 		status = http.StatusNotFound
 		return
